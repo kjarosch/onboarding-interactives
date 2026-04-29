@@ -1,0 +1,311 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Your 3-week onboarding journey</title>
+<!--
+  =================================================================
+  THUMBTACK ONBOARDING — INTERACTIVE 3-WEEK TIMELINE
+  Drop the contents of this file into a Sana embed/HTML block.
+
+  TO CUSTOMIZE:
+  1. Brand colors  -> see :root variables in the <style> block
+  2. Week content  -> see WEEK_DATA in the <script> block
+  3. Schedule URL  -> see SCHEDULE_URL in the <script> block
+  =================================================================
+-->
+<style>
+  :root {
+    /* Brand — replace with Thumbtack hex codes */
+    --accent: #4F46E5;
+    --accent-bg: #EEF2FF;
+    --accent-text: #3730A3;
+
+    /* Neutrals */
+    --text-primary: #111827;
+    --text-secondary: #6B7280;
+    --bg-primary: #FFFFFF;
+    --bg-secondary: #F9FAFB;
+    --border: rgba(0,0,0,0.08);
+    --border-strong: rgba(0,0,0,0.16);
+    --success: #047857;
+
+    --radius-md: 8px;
+    --radius-lg: 12px;
+  }
+
+  .tt-root, .tt-root * { box-sizing: border-box; }
+
+  .tt-root {
+    font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, "Helvetica Neue", Arial, sans-serif;
+    color: var(--text-primary);
+    max-width: 760px;
+    margin: 0 auto;
+    padding: 24px 16px;
+    line-height: 1.5;
+  }
+
+  .tt-header { text-align: center; margin-bottom: 24px; }
+  .tt-eyebrow {
+    font-size: 11px; color: var(--text-secondary);
+    text-transform: uppercase; letter-spacing: 1.5px; margin-bottom: 6px;
+  }
+  .tt-title { font-size: 22px; font-weight: 500; margin: 0 0 4px; }
+  .tt-subtitle { font-size: 13px; color: var(--text-secondary); }
+
+  .tt-week-row {
+    display: flex; gap: 12px; margin-bottom: 20px; flex-wrap: wrap;
+  }
+  .tt-week-card {
+    flex: 1 1 200px;
+    background: var(--bg-primary);
+    border: 1px solid var(--border);
+    border-radius: var(--radius-lg);
+    padding: 16px 14px;
+    cursor: pointer;
+    text-align: center;
+    font-family: inherit;
+    transition: background 0.15s, box-shadow 0.15s;
+  }
+  .tt-week-card:hover { background: var(--bg-secondary); }
+  .tt-week-card.active {
+    background: var(--accent-bg);
+    box-shadow: inset 0 0 0 2px var(--accent);
+    border-color: transparent;
+  }
+  .tt-week-num {
+    font-size: 10px; color: var(--text-secondary);
+    text-transform: uppercase; letter-spacing: 1.5px; margin-bottom: 4px;
+  }
+  .tt-week-card.active .tt-week-num { color: var(--accent-text); }
+  .tt-week-title {
+    font-size: 16px; font-weight: 500; color: var(--text-primary); margin-bottom: 4px;
+  }
+  .tt-week-card.active .tt-week-title { color: var(--accent-text); }
+  .tt-week-tag { font-size: 12px; color: var(--text-secondary); line-height: 1.3; }
+  .tt-week-card.active .tt-week-tag { color: var(--accent-text); }
+
+  .tt-detail {
+    background: var(--bg-secondary);
+    border-radius: var(--radius-lg);
+    padding: 20px;
+    margin-bottom: 20px;
+  }
+  .tt-purpose { font-size: 14px; line-height: 1.6; margin-bottom: 18px; }
+  .tt-grid { display: grid; grid-template-columns: repeat(2, 1fr); gap: 24px; }
+  @media (max-width: 540px) { .tt-grid { grid-template-columns: 1fr; } }
+  .tt-label {
+    font-size: 11px; color: var(--text-secondary);
+    text-transform: uppercase; letter-spacing: 1px; margin-bottom: 8px;
+  }
+  .tt-list, .tt-text { font-size: 13px; line-height: 1.6; margin: 0 0 16px; }
+  .tt-list { padding-left: 18px; }
+  .tt-text:last-child { margin-bottom: 0; }
+
+  .tt-schedule {
+    display: inline-block; margin-top: 4px; padding: 6px 14px;
+    background: var(--accent); color: #fff; text-decoration: none;
+    border-radius: var(--radius-md); font-size: 13px;
+  }
+  .tt-schedule:hover { opacity: 0.92; }
+
+  .tt-reflect {
+    border: 1px solid var(--border);
+    border-radius: var(--radius-lg);
+    padding: 16px 20px;
+  }
+  .tt-reflect-q { font-size: 14px; font-weight: 500; margin-bottom: 4px; }
+  .tt-reflect-help { font-size: 13px; color: var(--text-secondary); margin-bottom: 12px; }
+  .tt-reflect-row { display: flex; gap: 8px; }
+  .tt-reflect-row input {
+    flex: 1; padding: 8px 12px;
+    border: 1px solid var(--border-strong);
+    border-radius: var(--radius-md);
+    font-family: inherit; font-size: 14px;
+    background: var(--bg-primary); color: var(--text-primary);
+  }
+  .tt-reflect-row input:focus {
+    outline: none; border-color: var(--accent);
+    box-shadow: 0 0 0 3px var(--accent-bg);
+  }
+  .tt-reflect-row button {
+    padding: 8px 16px; background: var(--accent); color: #fff;
+    border: none; border-radius: var(--radius-md);
+    font-family: inherit; font-size: 14px; cursor: pointer;
+  }
+  .tt-reflect-row button:hover { opacity: 0.92; }
+  .tt-reflect-out {
+    margin-top: 12px; font-size: 13px; color: var(--success); display: none;
+  }
+</style>
+</head>
+<body>
+
+<div class="tt-root">
+
+  <div class="tt-header">
+    <div class="tt-eyebrow">Welcome to Thumbtack</div>
+    <h1 class="tt-title">Your 3-week onboarding journey</h1>
+    <div class="tt-subtitle">Click a week to see what's ahead.</div>
+  </div>
+
+  <div class="tt-week-row" role="tablist" aria-label="Onboarding weeks">
+    <button class="tt-week-card active" data-week="1" role="tab" aria-selected="true">
+      <div class="tt-week-num">Week 1</div>
+      <div class="tt-week-title">Experience</div>
+      <div class="tt-week-tag">Connection &middot; culture &middot; context</div>
+    </button>
+    <button class="tt-week-card" data-week="2" role="tab" aria-selected="false">
+      <div class="tt-week-num">Week 2</div>
+      <div class="tt-week-title">LoB</div>
+      <div class="tt-week-tag">Role-specific learning</div>
+    </button>
+    <button class="tt-week-card" data-week="3" role="tab" aria-selected="false">
+      <div class="tt-week-num">Week 3</div>
+      <div class="tt-week-title">Training Bay</div>
+      <div class="tt-week-tag">Apply &middot; practice &middot; readiness</div>
+    </button>
+  </div>
+
+  <div class="tt-detail" role="tabpanel">
+    <div class="tt-purpose" id="tt-purpose"></div>
+    <div class="tt-grid">
+      <div>
+        <div class="tt-label">Milestones</div>
+        <ul class="tt-list" id="tt-milestones"></ul>
+        <div class="tt-label">Format</div>
+        <div class="tt-text" id="tt-format"></div>
+      </div>
+      <div>
+        <div class="tt-label">What's expected of you</div>
+        <ul class="tt-list" id="tt-expectations"></ul>
+        <div class="tt-label">Where to get support</div>
+        <div class="tt-text" id="tt-support"></div>
+        <a class="tt-schedule" id="tt-schedule" href="#" target="_blank" rel="noopener">View my schedule</a>
+      </div>
+    </div>
+  </div>
+
+  <div class="tt-reflect">
+    <div class="tt-reflect-q">Which part feels most exciting?</div>
+    <div class="tt-reflect-help">A one-line reflection — there's no wrong answer. We'll revisit this in your Week 2 Slack reflection.</div>
+    <div class="tt-reflect-row">
+      <input type="text" id="tt-reflect-input" placeholder="What you're looking forward to..." />
+      <button id="tt-reflect-btn">Save</button>
+    </div>
+    <div class="tt-reflect-out" id="tt-reflect-out"></div>
+  </div>
+
+</div>
+
+<script>
+(function(){
+  // ===== CUSTOMIZE CONTENT HERE =====
+  var SCHEDULE_URL = "https://coda.io/d/your-cohort-schedule";
+
+  var WEEK_DATA = {
+    "1": {
+      purpose: "Week 1 is Experience — designed to ground you in who Thumbtack is and how we work, before we go deep on your specific role. Most of this week is shared across the cohort, so you'll build relationships with the people you started alongside.",
+      milestones: [
+        "Welcome Circle and values alignment",
+        "Compass self-paced modules",
+        "Manager 1:1 mid-week",
+        "Week 1 pulse check on Friday"
+      ],
+      format: "Live sessions, eLearning, light shadowing",
+      expectations: [
+        "Show up to live sessions ready to engage",
+        "Complete assigned Compass modules",
+        "Ask questions early — in cohort Slack, with your manager, or in office hours"
+      ],
+      support: "Cohort Slack channel, your manager, onboarding facilitators"
+    },
+    "2": {
+      purpose: "Week 2 is LoB (Line of Business) — your first full week of role-specific training. Content tailors to your function, and you'll start to see how Week 1 fits into the bigger picture of how you'll show up for customers and pros.",
+      milestones: [
+        "LoB kickoff on Monday",
+        "Role-specific eLearning paths",
+        "Mentor shadowing sessions",
+        "Mid-week coaching check-in",
+        "Confidence and clarity reflection led in Slack"
+      ],
+      format: "Role-specific live sessions, mentor shadowing, eLearning",
+      expectations: [
+        "Take ownership of your role-specific learning",
+        "Bring questions to your mentor and coaches",
+        "Track what's clear vs. still fuzzy — and share both"
+      ],
+      support: "Your manager, your mentor, LoB-specific Slack channels"
+    },
+    "3": {
+      purpose: "Week 3 is Training Bay — where you put it all together. You'll practice in realistic scenarios, get feedback, and pass a readiness gate before you handle real work solo.",
+      milestones: [
+        "Reverse shadowing — you lead, mentor observes",
+        "Scenario practice with feedback",
+        "Readiness gate and certification",
+        "Cohort closeout"
+      ],
+      format: "Hands-on practice, scenarios, reverse shadowing, certification",
+      expectations: [
+        "Apply what you've learned in realistic conditions",
+        "Welcome feedback — including the uncomfortable kind",
+        "Speak up if you don't feel ready for the gate yet"
+      ],
+      support: "Your mentor, your manager, training facilitators"
+    }
+  };
+  // ===================================
+
+  var cards = document.querySelectorAll(".tt-week-card");
+  var elPurpose = document.getElementById("tt-purpose");
+  var elMilestones = document.getElementById("tt-milestones");
+  var elFormat = document.getElementById("tt-format");
+  var elExpectations = document.getElementById("tt-expectations");
+  var elSupport = document.getElementById("tt-support");
+  var elSchedule = document.getElementById("tt-schedule");
+
+  elSchedule.href = SCHEDULE_URL;
+
+  function escapeHtml(s){
+    return String(s).replace(/[&<>"']/g, function(c){
+      return {"&":"&amp;","<":"&lt;",">":"&gt;","\"":"&quot;","'":"&#39;"}[c];
+    });
+  }
+
+  function show(week){
+    var item = WEEK_DATA[week];
+    elPurpose.textContent = item.purpose;
+    elMilestones.innerHTML = item.milestones.map(function(m){ return "<li>" + escapeHtml(m) + "</li>"; }).join("");
+    elFormat.textContent = item.format;
+    elExpectations.innerHTML = item.expectations.map(function(e){ return "<li>" + escapeHtml(e) + "</li>"; }).join("");
+    elSupport.textContent = item.support;
+    cards.forEach(function(c){
+      var isActive = c.dataset.week === week;
+      c.classList.toggle("active", isActive);
+      c.setAttribute("aria-selected", isActive ? "true" : "false");
+    });
+  }
+
+  cards.forEach(function(c){
+    c.addEventListener("click", function(){ show(c.dataset.week); });
+  });
+
+  show("1");
+
+  var input = document.getElementById("tt-reflect-input");
+  var btn = document.getElementById("tt-reflect-btn");
+  var out = document.getElementById("tt-reflect-out");
+  function save(){
+    var val = input.value.trim();
+    if (!val) return;
+    out.textContent = "Saved: \"" + val + "\"";
+    out.style.display = "block";
+  }
+  btn.addEventListener("click", save);
+  input.addEventListener("keydown", function(e){ if (e.key === "Enter") save(); });
+})();
+</script>
+
+</body>
+</html>
