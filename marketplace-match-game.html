@@ -1,0 +1,715 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Marketplace Match — A Thumbtack New Hire Game</title>
+<!--
+  =================================================================
+  MARKETPLACE MATCH — A Thumbtack new-hire onboarding game
+  Teaches the customer-pro fit mental model through 4 short scenarios.
+
+  HOST IT LIKE THE TIMELINE: drop this file in your GitHub Pages repo
+  and embed the URL in Sana.
+
+  TO CUSTOMIZE:
+  1. Brand colors  -> see :root variables below
+  2. Scenarios     -> see SCENARIOS in the <script>
+  3. Final insights -> see INSIGHTS in the <script>
+  =================================================================
+-->
+<style>
+  :root {
+    --brand: #006D5B;
+    --brand-light: #E6F5F1;
+    --brand-dark: #004D3F;
+    --accent: #F2C94C;
+    --good: #047857;
+    --good-bg: #ECFDF5;
+    --okay: #B45309;
+    --okay-bg: #FFFBEB;
+    --poor: #B91C1C;
+    --poor-bg: #FEF2F2;
+
+    --text: #1A1A1A;
+    --muted: #6B7280;
+    --tertiary: #9CA3AF;
+    --bg: #FAFAF7;
+    --card: #FFFFFF;
+    --border: rgba(0,0,0,0.08);
+    --border-strong: rgba(0,0,0,0.16);
+
+    --radius: 12px;
+    --radius-sm: 8px;
+  }
+
+  .mm-root, .mm-root * { box-sizing: border-box; }
+
+  .mm-root {
+    font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, "Helvetica Neue", Arial, sans-serif;
+    color: var(--text);
+    background: var(--bg);
+    max-width: 760px;
+    margin: 0 auto;
+    padding: 24px 16px;
+    line-height: 1.5;
+    min-height: 600px;
+  }
+
+  .mm-screen { display: none; animation: fadeIn 0.3s ease; }
+  .mm-screen.active { display: block; }
+  @keyframes fadeIn { from { opacity: 0; transform: translateY(4px); } to { opacity: 1; transform: none; } }
+
+  /* HUD */
+  .mm-hud {
+    display: flex; justify-content: space-between; align-items: center;
+    margin-bottom: 20px; padding: 12px 16px;
+    background: var(--card); border: 1px solid var(--border);
+    border-radius: var(--radius-sm);
+  }
+  .mm-hud-label { font-size: 11px; color: var(--muted); text-transform: uppercase; letter-spacing: 1px; }
+  .mm-hud-value { font-size: 18px; font-weight: 600; color: var(--text); }
+  .mm-hud-progress {
+    flex: 1; max-width: 180px; height: 6px; margin: 0 16px;
+    background: var(--border); border-radius: 3px; overflow: hidden;
+  }
+  .mm-hud-progress-bar {
+    height: 100%; background: var(--brand); transition: width 0.4s ease;
+  }
+
+  /* Welcome screen */
+  .mm-welcome { text-align: center; padding: 40px 24px; }
+  .mm-eyebrow {
+    display: inline-block; padding: 4px 12px;
+    background: var(--brand-light); color: var(--brand-dark);
+    font-size: 11px; text-transform: uppercase; letter-spacing: 1.5px;
+    border-radius: 999px; margin-bottom: 16px; font-weight: 600;
+  }
+  .mm-title { font-size: 32px; font-weight: 600; margin: 0 0 12px; line-height: 1.2; }
+  .mm-lede {
+    font-size: 16px; color: var(--muted);
+    max-width: 520px; margin: 0 auto 24px; line-height: 1.6;
+  }
+  .mm-rules {
+    background: var(--card); border: 1px solid var(--border);
+    border-radius: var(--radius); padding: 20px 24px; margin: 0 auto 28px;
+    max-width: 520px; text-align: left;
+  }
+  .mm-rules-title { font-size: 13px; font-weight: 600; color: var(--text); margin: 0 0 10px; }
+  .mm-rules ul { margin: 0; padding-left: 20px; font-size: 14px; color: var(--muted); }
+  .mm-rules li { margin-bottom: 6px; }
+
+  /* Buttons */
+  .mm-btn {
+    display: inline-flex; align-items: center; justify-content: center;
+    padding: 12px 28px; background: var(--brand); color: white;
+    border: none; border-radius: var(--radius-sm);
+    font-family: inherit; font-size: 15px; font-weight: 500;
+    cursor: pointer; transition: background 0.15s, transform 0.05s;
+  }
+  .mm-btn:hover { background: var(--brand-dark); }
+  .mm-btn:active { transform: translateY(1px); }
+  .mm-btn-secondary {
+    background: transparent; color: var(--brand);
+    border: 1px solid var(--brand);
+  }
+  .mm-btn-secondary:hover { background: var(--brand-light); }
+
+  /* Customer card */
+  .mm-customer {
+    background: var(--card); border: 1px solid var(--border);
+    border-radius: var(--radius); padding: 20px; margin-bottom: 20px;
+  }
+  .mm-customer-head { display: flex; align-items: center; gap: 14px; margin-bottom: 14px; }
+  .mm-avatar {
+    width: 48px; height: 48px; border-radius: 50%;
+    background: var(--brand-light); color: var(--brand-dark);
+    display: flex; align-items: center; justify-content: center;
+    font-weight: 600; font-size: 18px; flex-shrink: 0;
+  }
+  .mm-customer-name { font-size: 16px; font-weight: 600; margin: 0; }
+  .mm-customer-meta { font-size: 13px; color: var(--muted); }
+  .mm-customer-quote {
+    background: var(--bg); border-left: 3px solid var(--brand);
+    padding: 12px 14px; font-size: 14px; color: var(--text);
+    margin-bottom: 14px; border-radius: 0 var(--radius-sm) var(--radius-sm) 0;
+    font-style: italic;
+  }
+  .mm-customer-tags { display: flex; flex-wrap: wrap; gap: 8px; }
+  .mm-tag {
+    font-size: 11px; padding: 4px 10px;
+    background: var(--bg); color: var(--muted);
+    border: 1px solid var(--border);
+    border-radius: 999px; text-transform: uppercase; letter-spacing: 0.5px;
+  }
+  .mm-tag-urgent { background: #FEF2F2; color: #B91C1C; border-color: #FECACA; }
+  .mm-tag-budget { background: #ECFDF5; color: #065F46; border-color: #A7F3D0; }
+
+  /* Pro grid */
+  .mm-prompt {
+    font-size: 13px; color: var(--muted);
+    text-transform: uppercase; letter-spacing: 1px;
+    margin-bottom: 12px; font-weight: 600;
+  }
+  .mm-pros {
+    display: grid; grid-template-columns: repeat(3, 1fr); gap: 12px;
+  }
+  @media (max-width: 640px) {
+    .mm-pros { grid-template-columns: 1fr; }
+    .mm-title { font-size: 26px; }
+  }
+  .mm-pro {
+    background: var(--card); border: 1px solid var(--border);
+    border-radius: var(--radius); padding: 16px;
+    cursor: pointer; transition: border-color 0.15s, transform 0.1s, box-shadow 0.15s;
+    text-align: left; font-family: inherit; color: var(--text);
+    display: flex; flex-direction: column; gap: 8px;
+  }
+  .mm-pro:hover {
+    border-color: var(--brand); transform: translateY(-2px);
+    box-shadow: 0 4px 12px rgba(0, 109, 91, 0.08);
+  }
+  .mm-pro-head { display: flex; align-items: center; gap: 10px; }
+  .mm-pro-avatar {
+    width: 36px; height: 36px; border-radius: 50%;
+    background: var(--accent); color: var(--text);
+    display: flex; align-items: center; justify-content: center;
+    font-weight: 600; font-size: 14px; flex-shrink: 0;
+  }
+  .mm-pro-name { font-size: 14px; font-weight: 600; margin: 0; }
+  .mm-pro-rating { font-size: 12px; color: var(--muted); }
+  .mm-pro-rating strong { color: var(--text); font-weight: 600; }
+  .mm-pro-badges { display: flex; flex-wrap: wrap; gap: 4px; }
+  .mm-badge {
+    font-size: 10px; font-weight: 600;
+    padding: 3px 8px; background: var(--brand-light); color: var(--brand-dark);
+    border-radius: 999px; text-transform: uppercase; letter-spacing: 0.5px;
+  }
+  .mm-badge-top { background: var(--accent); color: var(--text); }
+  .mm-pro-detail {
+    font-size: 13px; color: var(--text); line-height: 1.5;
+  }
+  .mm-pro-detail-row {
+    display: flex; justify-content: space-between; gap: 8px;
+    padding: 4px 0; border-top: 1px solid var(--border);
+    font-size: 12px;
+  }
+  .mm-pro-detail-row:first-of-type { border-top: none; }
+  .mm-pro-detail-label { color: var(--muted); }
+  .mm-pro-detail-value { color: var(--text); font-weight: 500; text-align: right; }
+
+  /* Feedback screen */
+  .mm-feedback { padding: 20px 0; }
+  .mm-feedback-card {
+    background: var(--card); border: 1px solid var(--border);
+    border-radius: var(--radius); padding: 28px 24px; text-align: center;
+  }
+  .mm-feedback-icon {
+    width: 56px; height: 56px; border-radius: 50%;
+    display: flex; align-items: center; justify-content: center;
+    margin: 0 auto 16px; font-size: 28px; font-weight: 600;
+  }
+  .mm-feedback-good { background: var(--good-bg); color: var(--good); }
+  .mm-feedback-okay { background: var(--okay-bg); color: var(--okay); }
+  .mm-feedback-poor { background: var(--poor-bg); color: var(--poor); }
+  .mm-feedback-headline { font-size: 22px; font-weight: 600; margin: 0 0 8px; }
+  .mm-feedback-score {
+    display: inline-block; padding: 4px 12px;
+    background: var(--bg); color: var(--text); font-size: 13px; font-weight: 600;
+    border-radius: 999px; margin-bottom: 16px;
+  }
+  .mm-feedback-body {
+    font-size: 14px; color: var(--text); line-height: 1.6;
+    max-width: 520px; margin: 0 auto 20px; text-align: left;
+  }
+  .mm-feedback-reaction {
+    background: var(--brand-light); border-radius: var(--radius-sm);
+    padding: 14px 16px; margin: 0 auto 24px; max-width: 520px;
+    text-align: left;
+  }
+  .mm-feedback-reaction-label {
+    font-size: 11px; font-weight: 600; color: var(--brand-dark);
+    text-transform: uppercase; letter-spacing: 1px; margin-bottom: 4px;
+  }
+  .mm-feedback-reaction-text {
+    font-size: 14px; color: var(--text); font-style: italic;
+  }
+
+  /* End screen */
+  .mm-end { text-align: center; padding: 32px 24px; }
+  .mm-final-score {
+    font-size: 48px; font-weight: 600; color: var(--brand);
+    margin: 0; line-height: 1;
+  }
+  .mm-final-score-sub { font-size: 14px; color: var(--muted); margin-top: 4px; }
+  .mm-insight {
+    background: var(--card); border: 1px solid var(--border);
+    border-radius: var(--radius); padding: 24px; margin: 24px auto;
+    max-width: 540px; text-align: left;
+  }
+  .mm-insight-title { font-size: 18px; font-weight: 600; margin: 0 0 8px; }
+  .mm-insight-body { font-size: 14px; color: var(--text); line-height: 1.6; margin: 0; }
+  .mm-end-actions { display: flex; gap: 12px; justify-content: center; flex-wrap: wrap; }
+</style>
+</head>
+<body>
+
+<div class="mm-root">
+
+  <!-- Welcome screen -->
+  <div id="mm-screen-welcome" class="mm-screen active">
+    <div class="mm-welcome">
+      <div class="mm-eyebrow">New hire game · 5 minutes</div>
+      <h1 class="mm-title">Marketplace Match</h1>
+      <p class="mm-lede">Four customers, four jobs, three pros each. Pick the best match — and learn how Thumbtack thinks about customer-pro fit.</p>
+      <div class="mm-rules">
+        <div class="mm-rules-title">How to play</div>
+        <ul>
+          <li>Read each customer's request carefully.</li>
+          <li>Compare the three pros — every detail matters.</li>
+          <li>Pick the best fit. Get scored, get coached, move on.</li>
+          <li>At the end you'll see your matchmaker style.</li>
+        </ul>
+      </div>
+      <button class="mm-btn" id="mm-start">Start playing</button>
+    </div>
+  </div>
+
+  <!-- Game screen -->
+  <div id="mm-screen-game" class="mm-screen">
+    <div class="mm-hud">
+      <div>
+        <div class="mm-hud-label">Round</div>
+        <div class="mm-hud-value" id="mm-round">1 of 4</div>
+      </div>
+      <div class="mm-hud-progress"><div class="mm-hud-progress-bar" id="mm-progress" style="width: 25%"></div></div>
+      <div style="text-align: right;">
+        <div class="mm-hud-label">Score</div>
+        <div class="mm-hud-value" id="mm-score">0</div>
+      </div>
+    </div>
+
+    <div class="mm-customer">
+      <div class="mm-customer-head">
+        <div class="mm-avatar" id="mm-avatar">M</div>
+        <div>
+          <div class="mm-customer-name" id="mm-customer-name">Customer name</div>
+          <div class="mm-customer-meta" id="mm-customer-meta">Job · Location</div>
+        </div>
+      </div>
+      <div class="mm-customer-quote" id="mm-customer-quote">"Customer's request..."</div>
+      <div class="mm-customer-tags" id="mm-customer-tags"></div>
+    </div>
+
+    <div class="mm-prompt">Which pro is the best match?</div>
+    <div class="mm-pros" id="mm-pros"></div>
+  </div>
+
+  <!-- Feedback screen -->
+  <div id="mm-screen-feedback" class="mm-screen">
+    <div class="mm-feedback">
+      <div class="mm-feedback-card">
+        <div class="mm-feedback-icon" id="mm-feedback-icon">✓</div>
+        <h2 class="mm-feedback-headline" id="mm-feedback-headline">Great match</h2>
+        <div class="mm-feedback-score" id="mm-feedback-score">+100 points</div>
+        <p class="mm-feedback-body" id="mm-feedback-body">Lesson body...</p>
+        <div class="mm-feedback-reaction">
+          <div class="mm-feedback-reaction-label" id="mm-feedback-reaction-label">What the customer felt</div>
+          <div class="mm-feedback-reaction-text" id="mm-feedback-reaction-text">"Reaction..."</div>
+        </div>
+        <button class="mm-btn" id="mm-continue">Continue</button>
+      </div>
+    </div>
+  </div>
+
+  <!-- End screen -->
+  <div id="mm-screen-end" class="mm-screen">
+    <div class="mm-end">
+      <div class="mm-eyebrow">Final score</div>
+      <p class="mm-final-score" id="mm-final-score">0</p>
+      <div class="mm-final-score-sub" id="mm-final-score-sub">out of 400</div>
+      <div class="mm-insight">
+        <div class="mm-insight-title" id="mm-insight-title">Your style</div>
+        <p class="mm-insight-body" id="mm-insight-body">Your matchmaker style...</p>
+      </div>
+      <div class="mm-end-actions">
+        <button class="mm-btn" id="mm-replay">Play again</button>
+        <button class="mm-btn mm-btn-secondary" id="mm-share-reflection">Reflect on what I learned</button>
+      </div>
+    </div>
+  </div>
+
+</div>
+
+<script>
+(function(){
+  // ===== SCENARIOS =====
+  // Edit, add, or remove scenarios here. Each needs a customer, 3 pros, and 3 outcomes.
+  // Outcome scoring: 100 = best match, 50 = decent, 10 = mismatch.
+  var SCENARIOS = [
+    {
+      customer: {
+        avatar: "M", name: "Maria", meta: "Plumber · San Jose, CA",
+        quote: "Kitchen sink is leaking — water on the floor, getting worse. First time using Thumbtack, honestly a little nervous. Budget is $150-250 if possible.",
+        tags: [
+          { text: "Urgent", type: "urgent" },
+          { text: "$150-250", type: "budget" },
+          { text: "First-time user", type: "neutral" }
+        ]
+      },
+      pros: [
+        {
+          id: "a", name: "Carlos M.", initials: "CM", rating: "4.9", reviews: "287 reviews",
+          badges: [{ text: "Top Pro", type: "top" }, { text: "Background checked", type: "default" }],
+          details: [
+            ["Available", "Now"],
+            ["Distance", "3 mi"],
+            ["Price range", "$220 minimum"],
+            ["Specialty", "Residential, emergencies"],
+            ["Style", "Patient, walks customers through it"]
+          ]
+        },
+        {
+          id: "b", name: "QuickFix Plumbing", initials: "QF", rating: "4.6", reviews: "1,245 reviews",
+          badges: [{ text: "Background checked", type: "default" }],
+          details: [
+            ["Available", "Tomorrow 8am"],
+            ["Distance", "8 mi"],
+            ["Price range", "$95 service call + parts"],
+            ["Specialty", "High-volume, all categories"],
+            ["Style", "Efficient, business-like"]
+          ]
+        },
+        {
+          id: "c", name: "Dave's Plumbing", initials: "DP", rating: "4.8", reviews: "89 reviews",
+          badges: [{ text: "Background checked", type: "default" }],
+          details: [
+            ["Available", "Now"],
+            ["Distance", "1 mi"],
+            ["Price range", "$300 flat (emergency)"],
+            ["Specialty", "Emergency, weekend work"],
+            ["Style", "Direct, technical"]
+          ]
+        }
+      ],
+      outcomes: {
+        a: { score: 100, level: "good", icon: "✓", headline: "Great match",
+          body: "Carlos balanced everything that mattered: he's available now, in budget, has emergency experience, and his patient communication style is exactly what a nervous first-timer needs. Top Pro status reinforces trust at a moment Maria really needs it.",
+          reaction: "Maria saw Carlos's response in 5 minutes and felt relieved. She told her partner: 'I think we're going to be okay.'" },
+        b: { score: 10, level: "poor", icon: "✗", headline: "Mismatch",
+          body: "QuickFix has the lowest price, but Maria's leak is active. Tomorrow morning means another 16 hours of water damage, possibly her landlord, possibly an insurance claim. When damage is ongoing, speed beats savings every time.",
+          reaction: "Maria saw 'tomorrow 8am' and panicked. She closed the app to look elsewhere — and that's a customer Thumbtack might lose for good." },
+        c: { score: 50, level: "okay", icon: "~", headline: "Decent — but pricey",
+          body: "Dave is fast, close, and qualified. But $300 is over Maria's budget. For a nervous first-timer, hitting them with a price 20% over what they said they could spend can erode trust before the work even starts.",
+          reaction: "Maria booked Dave because she was scared, but felt squeezed on price. She'll think twice before using Thumbtack again." }
+      }
+    },
+    {
+      customer: {
+        avatar: "M", name: "Marcus", meta: "Wedding photographer · Dallas, TX",
+        quote: "Getting married in 6 months. Looking for a candid, modern style — think editorial, not posed church portraits. Budget is $3,500-5,000 for full day.",
+        tags: [
+          { text: "$3.5-5K", type: "budget" },
+          { text: "Style-driven", type: "neutral" },
+          { text: "6 months out", type: "neutral" }
+        ]
+      },
+      pros: [
+        {
+          id: "a", name: "ClassicMoments Photo", initials: "CP", rating: "4.8", reviews: "412 weddings",
+          badges: [{ text: "Top Pro", type: "top" }],
+          details: [
+            ["Available", "Date open"],
+            ["Price range", "$4,000-6,000"],
+            ["Style", "Traditional, posed portraits"],
+            ["Portfolio", "Churches, ballrooms"],
+            ["Years experience", "18 years"]
+          ]
+        },
+        {
+          id: "b", name: "Olivia Chen Photography", initials: "OC", rating: "4.9", reviews: "78 weddings",
+          badges: [{ text: "Background checked", type: "default" }],
+          details: [
+            ["Available", "Date open"],
+            ["Price range", "$3,500-5,000"],
+            ["Style", "Editorial, candid"],
+            ["Portfolio", "Modern venues, outdoors"],
+            ["Years experience", "6 years"]
+          ]
+        },
+        {
+          id: "c", name: "BudgetWedding Pix", initials: "BW", rating: "4.4", reviews: "156 weddings",
+          badges: [],
+          details: [
+            ["Available", "Date open"],
+            ["Price range", "$1,500-2,500"],
+            ["Style", "Mixed, generic"],
+            ["Portfolio", "All venue types"],
+            ["Years experience", "4 years"]
+          ]
+        }
+      ],
+      outcomes: {
+        a: { score: 10, level: "poor", icon: "✗", headline: "Style mismatch",
+          body: "ClassicMoments has the most weddings and a Top Pro badge, but their style is the opposite of what Marcus described. Volume doesn't beat fit. For creative work, picking the wrong style is worse than picking a less-experienced pro with the right eye.",
+          reaction: "Marcus reviewed the portfolio and immediately moved on. 'These are beautiful, but not for me.' That's the right read." },
+        b: { score: 100, level: "good", icon: "✓", headline: "Great match",
+          body: "Olivia's editorial style is exactly what Marcus described, her portfolio is modern, and she's right in budget. For creative work, style fit is the #1 driver of customer satisfaction — even ahead of years of experience.",
+          reaction: "Marcus scrolled through Olivia's portfolio for 20 minutes. He texted his fiancée: 'I think this is the one.'" },
+        c: { score: 50, level: "okay", icon: "~", headline: "Cheap, but risky",
+          body: "BudgetWedding fits the wallet but their style is undefined. For a wedding — a once-in-a-lifetime event — paying mid-budget for clear style match almost always beats saving for unclear quality.",
+          reaction: "Marcus felt the price was tempting but worried about regret. He decided to spend more for peace of mind." }
+      }
+    },
+    {
+      customer: {
+        avatar: "P", name: "Mrs. Patel", meta: "House cleaner · Phoenix, AZ",
+        quote: "Looking for a weekly cleaner I can trust. I have a small dog. I've had bad experiences with companies sending different people each week. Budget is $80-120 per visit.",
+        tags: [
+          { text: "Recurring", type: "neutral" },
+          { text: "$80-120/visit", type: "budget" },
+          { text: "Has pet", type: "neutral" },
+          { text: "Trust-driven", type: "neutral" }
+        ]
+      },
+      pros: [
+        {
+          id: "a", name: "Sparkle Cleaning Co", initials: "SC", rating: "4.7", reviews: "523 reviews",
+          badges: [{ text: "Background checked", type: "default" }],
+          details: [
+            ["Type", "Cleaning company"],
+            ["Price", "$90/visit standard"],
+            ["Recurring", "Yes, weekly"],
+            ["Same cleaner?", "Rotates crew"],
+            ["Pets", "Standard, no specialty"]
+          ]
+        },
+        {
+          id: "b", name: "Maria L.", initials: "ML", rating: "4.9", reviews: "94 recurring clients",
+          badges: [{ text: "Top Pro", type: "top" }, { text: "Background checked", type: "default" }],
+          details: [
+            ["Type", "Independent cleaner"],
+            ["Price", "$100/visit"],
+            ["Recurring", "5+ year clients"],
+            ["Same cleaner?", "Always Maria"],
+            ["Pets", "Pet-friendly, references"]
+          ]
+        },
+        {
+          id: "c", name: "BuyMore Cleaning", initials: "BM", rating: "4.5", reviews: "1,108 reviews",
+          badges: [],
+          details: [
+            ["Type", "App-based service"],
+            ["Price", "$65/visit (intro deal)"],
+            ["Recurring", "Maybe — assigns weekly"],
+            ["Same cleaner?", "Different each time"],
+            ["Pets", "Not specified"]
+          ]
+        }
+      ],
+      outcomes: {
+        a: { score: 50, level: "okay", icon: "~", headline: "Reliable, but interchangeable",
+          body: "Sparkle is solid, in budget, and offers recurring service. But Mrs. Patel told you she's been burned by rotating crews — and Sparkle rotates. Reading the brief beats picking the safe-looking option.",
+          reaction: "Mrs. Patel was disappointed when a different person showed up the second week. She started looking again." },
+        b: { score: 100, level: "good", icon: "✓", headline: "Great match",
+          body: "Maria checks every box Mrs. Patel told you mattered: same cleaner every visit, pet-friendly with references, long-term recurring track record. Recurring service rewards relationship fit — and Maria is built for relationships.",
+          reaction: "Mrs. Patel met Maria on visit one and within a month was recommending her to neighbors. That's the gold standard outcome." },
+        c: { score: 10, level: "poor", icon: "✗", headline: "Cheap is the wrong lens",
+          body: "BuyMore is cheap and high-volume — but every signal points away from what Mrs. Patel asked for. Different cleaner each time, no pet info, intro-deal pricing that suggests retention struggles. Cheap rates often mean high worker turnover.",
+          reaction: "Mrs. Patel got three different cleaners in three weeks. She left a 1-star review and stopped using Thumbtack." }
+      }
+    },
+    {
+      customer: {
+        avatar: "D", name: "Devon", meta: "Logo designer · Brooklyn, NY",
+        quote: "Launching a food truck in 3 weeks. Need a logo that feels modern but warm. Budget $300-500. I've seen logos for $99 and for $5,000 — I want quality but I'm a small biz.",
+        tags: [
+          { text: "$300-500", type: "budget" },
+          { text: "3-week deadline", type: "urgent" },
+          { text: "Small biz", type: "neutral" }
+        ]
+      },
+      pros: [
+        {
+          id: "a", name: "BrandHaus Studio", initials: "BH", rating: "4.9", reviews: "203 brands",
+          badges: [{ text: "Top Pro", type: "top" }],
+          details: [
+            ["Price", "$1,500-3,000"],
+            ["Turnaround", "3-4 weeks"],
+            ["Portfolio", "Restaurants, premium"],
+            ["Style", "Polished, agency"],
+            ["Includes", "Brand guidelines"]
+          ]
+        },
+        {
+          id: "b", name: "Sara K. Design", initials: "SK", rating: "4.8", reviews: "147 reviews",
+          badges: [{ text: "Background checked", type: "default" }],
+          details: [
+            ["Price", "$400 flat"],
+            ["Turnaround", "5 business days"],
+            ["Portfolio", "Food trucks, cafes"],
+            ["Style", "Modern, hand-drawn feel"],
+            ["Includes", "3 concepts, 2 revisions"]
+          ]
+        },
+        {
+          id: "c", name: "LogoFast", initials: "LF", rating: "4.3", reviews: "2,400 reviews",
+          badges: [],
+          details: [
+            ["Price", "$99 flat"],
+            ["Turnaround", "24 hours"],
+            ["Portfolio", "Generic, AI-assisted"],
+            ["Style", "Templated"],
+            ["Includes", "1 concept"]
+          ]
+        }
+      ],
+      outcomes: {
+        a: { score: 10, level: "poor", icon: "✗", headline: "Out of reach",
+          body: "BrandHaus is great work — but 3-6x over Devon's budget. Recommending way over budget damages trust even if the quality is real. The matchmaker job isn't 'find the best pro' — it's 'find the best pro for THIS customer.'",
+          reaction: "Devon felt embarrassed and seen as a small player. He didn't reach out — and Thumbtack lost the lead." },
+        b: { score: 100, level: "good", icon: "✓", headline: "Great match",
+          body: "Sara hits price, timeline, and category match (food trucks, cafes — exactly Devon's world). For small-business creative work, in-budget portfolio match is the magic combination. The 5-day turnaround leaves room for tweaks before launch.",
+          reaction: "Devon got three concepts on day five and his eyes widened — they actually got him. He hired Sara on the spot." },
+        c: { score: 50, level: "okay", icon: "~", headline: "Cheap, but generic",
+          body: "LogoFast fits the timeline and budget but uses templated work. For Devon's brand-defining moment — a logo he'll use for years — generic templates can hurt long-term. He'll likely come back to redo it within a year.",
+          reaction: "Devon's logo looked fine on launch day, but six months in he was already paying someone else to redo it." }
+      }
+    }
+  ];
+
+  // ===== INSIGHTS at end =====
+  var INSIGHTS = [
+    { min: 380, title: "Marketplace Whisperer",
+      body: "You nailed every read. You're already thinking the way Thumbtack veterans think — fit beats fame, the customer's words tell you what to weigh, and the right tradeoff depends on the customer in front of you. This is the mindset that makes the marketplace work." },
+    { min: 280, title: "Strong matchmaker",
+      body: "You understand the trade-offs that drive customer satisfaction. You're already weighing more than just stars and price — you're reading the customer's situation. One more pass through the feedback and the patterns will lock in fully." },
+    { min: 180, title: "Learning the patterns",
+      body: "You're picking up the marketplace logic. The big shift comes when you stop asking 'who's the best pro?' and start asking 'who's the best pro for THIS customer?' Re-read the feedback on your misses and try again — those are where the mental model lives." },
+    { min: 0, title: "First scrimmage",
+      body: "Every pick was a learning moment. The matchmaker mindset isn't intuitive at first — it's a skill that builds with reps. Read the feedback, replay, and notice what changes when you weigh customer state (nervous, urgent, style-driven) as much as pro stats." }
+  ];
+
+  // ===== STATE =====
+  var state = { round: 0, score: 0, picks: [] };
+
+  function $(id) { return document.getElementById(id); }
+  function show(name) {
+    document.querySelectorAll(".mm-screen").forEach(function(s){ s.classList.remove("active"); });
+    $("mm-screen-" + name).classList.add("active");
+  }
+
+  function renderRound() {
+    var s = SCENARIOS[state.round];
+    $("mm-round").textContent = (state.round + 1) + " of " + SCENARIOS.length;
+    $("mm-progress").style.width = ((state.round) / SCENARIOS.length * 100) + "%";
+    $("mm-score").textContent = state.score;
+    $("mm-avatar").textContent = s.customer.avatar;
+    $("mm-customer-name").textContent = s.customer.name;
+    $("mm-customer-meta").textContent = s.customer.meta;
+    $("mm-customer-quote").textContent = "“" + s.customer.quote + "”";
+    var tagsHtml = s.customer.tags.map(function(t){
+      var cls = t.type === "urgent" ? "mm-tag mm-tag-urgent" :
+                t.type === "budget" ? "mm-tag mm-tag-budget" : "mm-tag";
+      return '<span class="' + cls + '">' + t.text + '</span>';
+    }).join("");
+    $("mm-customer-tags").innerHTML = tagsHtml;
+
+    var prosHtml = s.pros.map(function(p){
+      var badges = p.badges.map(function(b){
+        var cls = b.type === "top" ? "mm-badge mm-badge-top" : "mm-badge";
+        return '<span class="' + cls + '">' + b.text + '</span>';
+      }).join("");
+      var rows = p.details.map(function(d){
+        return '<div class="mm-pro-detail-row"><span class="mm-pro-detail-label">' + d[0] + '</span><span class="mm-pro-detail-value">' + d[1] + '</span></div>';
+      }).join("");
+      return ''
+        + '<button class="mm-pro" data-pick="' + p.id + '">'
+        +   '<div class="mm-pro-head">'
+        +     '<div class="mm-pro-avatar">' + p.initials + '</div>'
+        +     '<div>'
+        +       '<div class="mm-pro-name">' + p.name + '</div>'
+        +       '<div class="mm-pro-rating"><strong>★ ' + p.rating + '</strong> · ' + p.reviews + '</div>'
+        +     '</div>'
+        +   '</div>'
+        +   '<div class="mm-pro-badges">' + badges + '</div>'
+        +   '<div class="mm-pro-detail">' + rows + '</div>'
+        + '</button>';
+    }).join("");
+    $("mm-pros").innerHTML = prosHtml;
+
+    document.querySelectorAll(".mm-pro").forEach(function(b){
+      b.addEventListener("click", function(){ pick(b.dataset.pick); });
+    });
+  }
+
+  function pick(id) {
+    var s = SCENARIOS[state.round];
+    var outcome = s.outcomes[id];
+    state.score += outcome.score;
+    state.picks.push({ scenario: state.round, pick: id, outcome: outcome });
+    renderFeedback(outcome);
+    show("feedback");
+  }
+
+  function renderFeedback(outcome) {
+    var icon = $("mm-feedback-icon");
+    icon.textContent = outcome.icon;
+    icon.className = "mm-feedback-icon mm-feedback-" + outcome.level;
+    $("mm-feedback-headline").textContent = outcome.headline;
+    $("mm-feedback-score").textContent = "+" + outcome.score + " points";
+    $("mm-feedback-body").textContent = outcome.body;
+    $("mm-feedback-reaction-text").textContent = "“" + outcome.reaction + "”";
+  }
+
+  function nextRound() {
+    state.round++;
+    if (state.round >= SCENARIOS.length) {
+      renderEnd();
+      show("end");
+    } else {
+      renderRound();
+      show("game");
+    }
+  }
+
+  function renderEnd() {
+    $("mm-final-score").textContent = state.score;
+    $("mm-final-score-sub").textContent = "out of " + (SCENARIOS.length * 100);
+    var insight = INSIGHTS.find(function(i){ return state.score >= i.min; });
+    $("mm-insight-title").textContent = insight.title;
+    $("mm-insight-body").textContent = insight.body;
+  }
+
+  function reset() {
+    state = { round: 0, score: 0, picks: [] };
+    renderRound();
+    show("game");
+  }
+
+  // Wire up
+  $("mm-start").addEventListener("click", function(){
+    renderRound();
+    show("game");
+  });
+  $("mm-continue").addEventListener("click", nextRound);
+  $("mm-replay").addEventListener("click", reset);
+  $("mm-share-reflection").addEventListener("click", function(){
+    var summary = "I just played Marketplace Match and scored " + state.score + "/" + (SCENARIOS.length * 100) + ". My biggest takeaway: ";
+    var ta = document.createElement("textarea");
+    ta.value = summary;
+    ta.style.cssText = "position:fixed;width:100%;max-width:540px;height:120px;left:50%;top:50%;transform:translate(-50%,-50%);z-index:9999;padding:16px;border:2px solid #006D5B;border-radius:8px;font-family:inherit;font-size:14px;";
+    document.body.appendChild(ta);
+    ta.focus(); ta.select();
+    var done = document.createElement("button");
+    done.textContent = "Close";
+    done.style.cssText = "position:fixed;left:50%;top:calc(50% + 90px);transform:translateX(-50%);z-index:9999;padding:8px 20px;background:#006D5B;color:#fff;border:none;border-radius:8px;cursor:pointer;";
+    done.onclick = function(){ ta.remove(); done.remove(); };
+    document.body.appendChild(done);
+  });
+
+})();
+</script>
+
+</body>
+</html>
